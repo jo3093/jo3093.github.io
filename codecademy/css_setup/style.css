@@ -9,3 +9,7 @@ p {
   .title{
     color: teal;
   }
+  
+  .uppercase{
+    text-transform: uppercase;
+  }
