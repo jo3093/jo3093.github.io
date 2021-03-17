@@ -37,3 +37,8 @@ p {
   h5{
    color: rebeccapurple;
   }
+  
+  h5,
+  p{
+    font-family: Georgia;
+  }
