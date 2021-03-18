@@ -35,3 +35,30 @@ header address {
     font-size: 0.9em;
     font-style: italic;
 }
+
+main {
+    max-width: 70%;
+    margin: auto;
+}
+
+main p {
+    text-align: justify;
+}
+
+main figure {
+    margin-left: 0;
+    width: 100%;
+}
+
+main figure img {
+    border: 1px solid black;
+    /* border-style: solid;
+    border-color: black;
+    border-width: 1px; */
+}
+
+#map {
+    height: 360px;
+    width: 100%;
+    border: 1px solid grey;
+}
