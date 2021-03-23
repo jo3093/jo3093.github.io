@@ -1,4 +1,5 @@
-const entree = 'Enchiladas';
-console.log(entree);
-entree = 'Tacos';
+let gainedDollar = 3;
+let lostDollar = 50;
 
+gainedDollar ++;
+lostDollar --;
