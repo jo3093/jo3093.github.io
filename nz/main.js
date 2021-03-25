@@ -8,6 +8,6 @@ const map = L.map("map", {
   });
 
   let mrk = L.marker([-38.137778, 176.251389]).addTo(map);
-
+  mrk.bindPopup('Rotorua').openPopup();
 
   console.log(document.querySelector('#map'));
