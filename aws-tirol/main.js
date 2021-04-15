@@ -1,4 +1,3 @@
-
 let basemapGray = L.tileLayer.provider("BasemapAT.grau");
 
 let map = L.map("map", {
@@ -16,7 +15,7 @@ let layerControl = L.control.layers({
     "BasemapAT.overlay+ortho": L.layerGroup([
         L.tileLayer.provider("BasemapAT.orthofoto"),
         L.tileLayer.provider("BasemapAT.overlay")
-    ])  
+    ])
 }).addTo(map);
 
 let awsLayer = L.featureGroup();
@@ -25,19 +24,23 @@ layerControl.addOverlay(awsLayer, "Wetterstationen Tirol");
 
 let snowLayer = L.featureGroup();
 layerControl.addOverlay(snowLayer, "Schneehöhen");
-snowLayer.addTo(map);
+// snowLayer.addTo(map);
 
-let awsURL =  "https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson";
+let windLayer = L.featureGroup();
+layerControl.addOverlay(windLayer, "Windgeschwindigkeit");
+windLayer.addTo(map);
+
+let awsURL = "https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson";
 fetch(awsURL)
     .then(response => response.json())
     .then(json => {
         // console.log("Daten konvertiert: ", json);
         for (station of json.features) {
-            console.log("Station: ", station);
+            // console.log("Station: ", station);
 
             // Stationsmarker
             let marker = L.marker([
-                station.geometry.coordinates[1], 
+                station.geometry.coordinates[1],
                 station.geometry.coordinates[0]
             ]);
 
@@ -65,30 +68,61 @@ fetch(awsURL)
             if (station.properties.HS) {
 
                 // je nach Wert andere Farbe
-                let highlightClass = "";
+                let snowhighlightClass = " ";
                 if (station.properties.HS > 100) {
-                    highlightClass = "snow-100";
+                    snowhighlightClass = "snow-100";
                 };
                 if (station.properties.HS > 200) {
-                    highlightClass = "snow-200";
+                    snowhighlightClass = "snow-200";
                 };
 
                 // SnowIcon (div)
                 let snowIcon = L.divIcon({
-                    html: `<div class="snow-label">${station.properties.HS}</div>`
+                    html: `<div class="snow-label ${snowhighlightClass}">${station.properties.HS}</div>`
                 });
 
                 // Marker
                 let snowmarker = L.marker([
-                    station.geometry.coordinates[1], 
+                    station.geometry.coordinates[1],
                     station.geometry.coordinates[0]
                 ], {
                     icon: snowIcon
                 });
                 snowmarker.addTo(snowLayer);
             };
+
+            // Marker wenn Windgeschwindigkeit vorhanden
+            if (station.properties.WG) {
+
+                // je nach Wert andere Farbe
+                let windhighlightClass = " ";
+                if (station.properties.WG > 10) {
+                    windhighlightClass = "wind-10";
+                };
+                if (station.properties.WG > 20) {
+                    windhighlightClass = "wind-20";
+                };
+
+                // WindIcon (div)
+                let windIcon = L.divIcon({
+                    html: `<div class="wind-label ${windhighlightClass}">${station.properties.WG}</div>`
+                });
+
+                // Marker
+                let windmarker = L.marker([
+                    station.geometry.coordinates[1],
+                    station.geometry.coordinates[0]
+                ], {
+                    icon: windIcon
+                });
+                windmarker.addTo(windLayer);
+
+            };
+
+
+
         };
 
         // Kartenzoom auf alle Marker
         map.fitBounds(awsLayer.getBounds());
-});
+    });

@@ -21,7 +21,6 @@ h2 {
         -1px -1px 0 white,
         -1px -1px 0 white,
         -1px -1px 0 white;
-    ;
 }
 
 .snow-100 {
@@ -30,4 +29,27 @@ h2 {
 
 .snow-200 {
     background-color: red;
+}
+
+
+.wind-label {
+    font-size: 1.2em;
+    font-weight: bold;
+    display: inline;
+    padding: 0.3em;
+    border: 1px solid gray;
+    background-color: silver;
+    text-shadow:
+        -1px -1px 0 white,
+        -1px -1px 0 white,
+        -1px -1px 0 white,
+        -1px -1px 0 white;
+}
+
+.wind-10 {
+    background-color: green;
+}
+
+.wind-20 {
+    background-color: orange;
 }
