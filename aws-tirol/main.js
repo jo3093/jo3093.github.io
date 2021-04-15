@@ -21,7 +21,11 @@ let layerControl = L.control.layers({
 
 let awsLayer = L.featureGroup();
 layerControl.addOverlay(awsLayer, "Wetterstationen Tirol");
-awsLayer.addTo(map);
+// awsLayer.addTo(map);
+
+let snowLayer = L.featureGroup();
+layerControl.addOverlay(snowLayer, "Schneehöhen");
+snowLayer.addTo(map);
 
 let awsURL =  "https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson";
 fetch(awsURL)
@@ -29,7 +33,9 @@ fetch(awsURL)
     .then(json => {
         // console.log("Daten konvertiert: ", json);
         for (station of json.features) {
-            //console.log("Station: ", station);
+            console.log("Station: ", station);
+
+            // Stationsmarker
             let marker = L.marker([
                 station.geometry.coordinates[1], 
                 station.geometry.coordinates[0]
@@ -38,14 +44,36 @@ fetch(awsURL)
             // Datum formatieren
             let formattedDate = new Date(station.properties.date);
 
+            // Pop-up
             marker.bindPopup(`
                 <h3>${station.properties.name}</h3>
                 <ul>
                     <li>Datum: ${formattedDate.toLocaleString("de")}</li>
-                    <li>Temperatur: ${station.properties.LT}</li>
+                    <li>Seehöhe: ${station.geometry.coordinates[2]} m</li>
+                    <li>Temperatur: ${station.properties.LT || 'nicht verfügbar'} °C</li>
+                    <li>Windgeschwindigkeit: ${station.properties.WG || 'nicht verfügbar'} m/s</li>
+                    <li>Windrichtung: ${station.properties.WR || 'nicht verfügbar'}</li>
+                    <li>rel. Luftfeuchtigkeit: ${station.properties.RH || 'nicht verfügbar'} %</li>
+                    <li>Luftdruck: ${station.properties.LD || 'nicht verfügbar'} hPA</li>
+                    <li>Schneehöhe: ${station.properties.HS || 'nicht verfügbar'} cm</li>
                 </ul>
+                <a target="_blank" href="https://wiski.tirol.gv.at/lawine/grafiken/1100/standard/tag/${station.properties.plot}.png">Grafik</a>
             `);
             marker.addTo(awsLayer);
+
+            // Marker wenn Schneehöhe vorhanden
+            if (station.properties.HS) {
+                let snowIcon = L.divIcon({
+                    html: `<div class="snow-label">${station.properties.HS}</div>`
+                });
+                let snowmarker = L.marker([
+                    station.geometry.coordinates[1], 
+                    station.geometry.coordinates[0]
+                ], {
+                    icon: snowIcon
+                });
+                snowmarker.addTo(snowLayer);
+            };
         };
 
         // Kartenzoom auf alle Marker
