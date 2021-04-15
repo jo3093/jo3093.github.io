@@ -29,6 +29,8 @@ fetch(awsURL)
             let marker = L.marker([
                 station.geometry.coordinates[1], 
                 station.geometry.coordinates[0]
-            ]).addTo(map);
+            ]);
+            marker.bindPopup(`<h3>${station.properties.name}</h3>`);
+            marker.addTo(map);
         };
 });
