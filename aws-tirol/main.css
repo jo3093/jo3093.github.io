@@ -23,3 +23,11 @@ h2 {
         -1px -1px 0 white;
     ;
 }
+
+.snow-100 {
+    background-color: darkblue;
+}
+
+.snow-200 {
+    background-color: red;
+}

@@ -63,9 +63,22 @@ fetch(awsURL)
 
             // Marker wenn Schneehöhe vorhanden
             if (station.properties.HS) {
+
+                // je nach Wert andere Farbe
+                let highlightClass = "";
+                if (station.properties.HS > 100) {
+                    highlightClass = "snow-100";
+                };
+                if (station.properties.HS > 200) {
+                    highlightClass = "snow-200";
+                };
+
+                // SnowIcon (div)
                 let snowIcon = L.divIcon({
                     html: `<div class="snow-label">${station.properties.HS}</div>`
                 });
+
+                // Marker
                 let snowmarker = L.marker([
                     station.geometry.coordinates[1], 
                     station.geometry.coordinates[0]
