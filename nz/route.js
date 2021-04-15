@@ -28,11 +28,11 @@ const ROUTE = [{
     wikipedia: "https://en.wikipedia.org/wiki/Tongariro_National_Park"
 }, {
     nr: 1,
-    name: "Geysire",
-    lat: 64.3137,
-    lng: -20.2995,
+    name: "Christchurch Botanic Gardens",
+    lat: -43.53,
+    lng: 172.62,
     user: "jbaumgartner1983",
-    wikipedia: "https://en.wikipedia.org/wiki/Geysir"
+    wikipedia: "https://en.wikipedia.org/wiki/Christchurch_Botanic_Gardens"
 }, {
     nr: 14,
     name: "Haast",
@@ -55,12 +55,12 @@ const ROUTE = [{
     user: "annakarolinv",
     wikipedia: "https://en.wikipedia.org/wiki/Doubtful_Sound_/_Patea"
 }, {
-    nr: 17,
+    nr: 19,
     name: "Picton",
     lat: -41.293056,
     lng: 174.001944,
     user: "maximilianender",
-    Wikipedia: "https://en.wikipedia.org/wiki/Picton,_New_Zealand",
+    wikipedia: "https://en.wikipedia.org/wiki/Picton,_New_Zealand",
 }, {
     nr: 20,
     name: "Wellington",
@@ -133,6 +133,7 @@ const ROUTE = [{
     wikipedia: "https://en.wikipedia.org/wiki/Wanaka"
 }, {
     nr: 5,
+    name: "Oamaru",
     lat: -45.09746,
     lng: 170.96911,
     user: "marlene353",
@@ -158,13 +159,6 @@ const ROUTE = [{
     lng: 176.251389,
     user: "jo3093",
     wikipedia: "https://en.wikipedia.org/wiki/Champagne_Pool"
-}, {
-    nr: 19,
-    name: "Picton",
-    lat: -41.293056,
-    lng: 174.001944,
-    user: "maximilianender",
-    Wikipedia: "https://en.wikipedia.org/wiki/Picton,_New_Zealand",
 }, {
     nr: 18,
     name: "Abel Tasman National Park",
