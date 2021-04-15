@@ -29,12 +29,25 @@ fetch(awsURL)
     .then(json => {
         // console.log("Daten konvertiert: ", json);
         for (station of json.features) {
-            console.log("Station: ", station);
+            //console.log("Station: ", station);
             let marker = L.marker([
                 station.geometry.coordinates[1], 
                 station.geometry.coordinates[0]
             ]);
-            marker.bindPopup(`<h3>${station.properties.name}</h3>`);
+
+            // Datum formatieren
+            let formattedDate = new Date(station.properties.date);
+
+            marker.bindPopup(`
+                <h3>${station.properties.name}</h3>
+                <ul>
+                    <li>Datum: ${formattedDate.toLocaleString("de")}</li>
+                    <li>Temperatur: ${station.properties.LT}</li>
+                </ul>
+            `);
             marker.addTo(awsLayer);
         };
+
+        // Kartenzoom auf alle Marker
+        map.fitBounds(awsLayer.getBounds());
 });
