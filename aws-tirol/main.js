@@ -1,128 +1,153 @@
-let basemapGray = L.tileLayer.provider("BasemapAT.grau");
+// Leaflet-provider Basemap laden
+let basemapGray = L.tileLayer.provider('BasemapAT.grau');       // als string Name
 
-let map = L.map("map", {
-    center: [47, 11],
-    zoom: 9,
-    layers: [
+// Karte erzeugen
+let map = L.map("map", {                // id von html-Element und Options-Element {} für weitere Einstellung
+    center: [47, 11],                   // Kartenzentrum
+    zoom: 9,                            // Zoomlevel
+    layers: [                           // Layers als Array
         basemapGray
     ]
-});
+}) 
 
-let layerControl = L.control.layers({
-    "BasemapAT.grau": basemapGray,
-    "BasemapAT.orthofoto": L.tileLayer.provider("BasemapAT.orthofoto"),
-    "BasemapAT.surface": L.tileLayer.provider("BasemapAT.surface"),
-    "BasemapAT.overlay+ortho": L.layerGroup([
-        L.tileLayer.provider("BasemapAT.orthofoto"),
-        L.tileLayer.provider("BasemapAT.overlay")
-    ])
+// LayerControl Objekt erzeugen um verschiedenen Layers ein-/ausschalten
+let LayerControl = L.control.layers({
+    "BasemapAT.grau": basemapGray,                                          // key angezeigte Name
+    "BasemapAT.orthofoto": L.tileLayer.provider('BasemapAT.orthofoto'),
+    "BasemapAT.basemap": L.tileLayer.provider('BasemapAT.basemap'),
+    "BasemapAT.terrain": L.tileLayer.provider('BasemapAT.terrain'),
+    "BasemapAT.overlay+ortho": L.layerGroup ([                              // mehrere Layer kombinieren in LayerGroup
+        L.tileLayer.provider('BasemapAT.orthofoto'),
+        L.tileLayer.provider('BasemapAT.overlay')
+    ])                              
 }).addTo(map);
 
+
+
+
+// Wetterstationsdaten einbinden
+let awsURL = 'https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson';
+
+
+// FeatureGroups für eigene Layer
+
+//Wetterstationen
 let awsLayer = L.featureGroup();
-layerControl.addOverlay(awsLayer, "Wetterstationen Tirol");
-// awsLayer.addTo(map);
+LayerControl.addOverlay(awsLayer, "Wetterstaitonen Tirol");         // zum LayerControl als Overlay hinzufügen mit Name
+//awsLayer.addTo(map);                                                // Layer wird auto. eingeschaltet
 
-let snowLayer = L.featureGroup();
-layerControl.addOverlay(snowLayer, "Schneehöhen");
-// snowLayer.addTo(map);
+// Schneehöhen
+let snowlayer = L.featureGroup();
+LayerControl.addOverlay(snowlayer, "Schneehöhe [cm]");
+//snowlayer.addTo(map);
 
-let windLayer = L.featureGroup();
-layerControl.addOverlay(windLayer, "Windgeschwindigkeit");
-windLayer.addTo(map);
+// Windstärke
+let windlayer = L.featureGroup();
+LayerControl.addOverlay(windlayer, "Windstärke [m/s]");
+//windlayer.addTo(map);
 
-let awsURL = "https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson";
-fetch(awsURL)
-    .then(response => response.json())
-    .then(json => {
-        // console.log("Daten konvertiert: ", json);
-        for (station of json.features) {
-            // console.log("Station: ", station);
+//Temperatur
+let templayer = L.featureGroup();
+LayerControl.addOverlay(templayer, "Lufttemperatur [°C]");
+templayer.addTo(map);
 
-            // Stationsmarker
-            let marker = L.marker([
-                station.geometry.coordinates[1],
-                station.geometry.coordinates[0]
-            ]);
 
-            // Datum formatieren
+
+// Daten holen...
+fetch(awsURL)                                       // Anfrage auf Sever
+    .then(answer => answer.json())                  // wenn ok => Daten laden und in json konvertieren 
+    .then(json => {                                 // wenn ok => mit dem json-Objekt in nächsten Funktion weiterarbeiten
+        for (station of json.features) {            // für jeden Eintrag in json.features = station (je Objekt mit geometry, properties, ...):
+            let marker = L.marker([                 // wird ein Marker erstellt
+                station.geometry.coordinates[1],        // lat
+                station.geometry.coordinates[0]         // long                                       
+                                                        
+            ]).addTo(awsLayer);                     // nicht direkt zu map hinzufügen sondern zum awsLayer
+
+            // Für Pop-up Datum formatieren - JavaScript-Datumsobjekt erzeugen
             let formattedDate = new Date(station.properties.date);
 
-            // Pop-up
+            // Pop-up erstellen und befüllen (html) wenn wert nicht gibt (undefined) dann ?
             marker.bindPopup(`
                 <h3>${station.properties.name}</h3>
                 <ul>
                     <li>Datum: ${formattedDate.toLocaleString("de")}</li>
-                    <li>Seehöhe: ${station.geometry.coordinates[2]} m</li>
-                    <li>Temperatur: ${station.properties.LT || 'nicht verfügbar'} °C</li>
-                    <li>Windgeschwindigkeit: ${station.properties.WG || 'nicht verfügbar'} m/s</li>
-                    <li>Windrichtung: ${station.properties.WR || 'nicht verfügbar'}</li>
-                    <li>rel. Luftfeuchtigkeit: ${station.properties.RH || 'nicht verfügbar'} %</li>
-                    <li>Luftdruck: ${station.properties.LD || 'nicht verfügbar'} hPA</li>
-                    <li>Schneehöhe: ${station.properties.HS || 'nicht verfügbar'} cm</li>
+                    <li>Seehöhe: ${station.geometry.coordinates[2]} m</li>       
+                    <li>Lufttemperatur: ${station.properties.LT || '?'} C</li>                  
+                    <li>Schneehöhe: ${station.properties.HS || '?'} cm</li>
+                    <li>Relative Luftfeuchtigkeit: ${station.properties.RH || '?'} %</li>
+                    <li>Windgeschwindigkeit: ${station.properties.WG || '?'} m/s</li>
                 </ul>
                 <a target="_blank" href="https://wiski.tirol.gv.at/lawine/grafiken/1100/standard/tag/${station.properties.plot}.png">Grafik</a>
-            `);
-            marker.addTo(awsLayer);
+                `);
 
-            // Marker wenn Schneehöhe vorhanden
-            if (station.properties.HS) {
-
-                // je nach Wert andere Farbe
-                let snowhighlightClass = " ";
-                if (station.properties.HS > 100) {
-                    snowhighlightClass = "snow-100";
+            // Marker für Schneehöhen
+            if (station.properties.HS) {                // wenn Schneehöhe vorhanden 
+                let highlightSnowClass = '';            // Variable mit leerem String (defautl) um je nach Schneehöhe andere css-Klasse hinzufügen für unter. Formatierung
+                if(station.properties.HS > 100) {
+                    highlightSnowClass = 'snow-100';
                 };
-                if (station.properties.HS > 200) {
-                    snowhighlightClass = "snow-200";
+                if(station.properties.HS > 200) {
+                    highlightSnowClass = 'snow-200';
                 };
-
-                // SnowIcon (div)
-                let snowIcon = L.divIcon({
-                    html: `<div class="snow-label ${snowhighlightClass}">${station.properties.HS}</div>`
+                let snowIcon = L.divIcon({              // Icon erzeugen (div von html um die Höhe reinzuschreiben mit css-Klasse für Formatierung)
+                    html: `<div class="label-textMarker ${highlightSnowClass}">${station.properties.HS}</div>`
                 });
-
-                // Marker
-                let snowmarker = L.marker([
-                    station.geometry.coordinates[1],
-                    station.geometry.coordinates[0]
+                let snowMarker = L.marker([             // Marker erzeugen
+                    station.geometry.coordinates[1],        // lat
+                    station.geometry.coordinates[0]         // long
                 ], {
-                    icon: snowIcon
+                    icon: snowIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
                 });
-                snowmarker.addTo(snowLayer);
+                snowMarker.addTo(snowlayer);             // zum snowlayer hinzufügen
+            };
+            
+            // Marker für Windstärke
+            if (station.properties.WG) {                // wenn Windstärke vorhanden 
+                let highlightWindClass = '';            // Variable mit leerem String (defautl) um je nach Windstärke andere css-Klasse hinzufügen für unter. Formatierung
+                if(station.properties.WG > 10) {
+                    highlightWindClass = 'wind-10';
+                };
+                if(station.properties.WG > 20) {
+                    highlightWindClass = 'wind-20';
+                };
+                let windIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
+                    html: `<div class="label-textMarker ${highlightWindClass}">${station.properties.WG}</div>`
+                });
+                let windMarker = L.marker([             // Marker erzeugen
+                    station.geometry.coordinates[1],        // lat
+                    station.geometry.coordinates[0]         // long
+                ], {
+                    icon: windIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
+                });
+                windMarker.addTo(windlayer);             // zum windlayer hinzufügen
             };
 
-            // Marker wenn Windgeschwindigkeit vorhanden
-            if (station.properties.WG) {
-
-                // je nach Wert andere Farbe
-                let windhighlightClass = " ";
-                if (station.properties.WG > 10) {
-                    windhighlightClass = "wind-10";
-                };
-                if (station.properties.WG > 20) {
-                    windhighlightClass = "wind-20";
-                };
-
-                // WindIcon (div)
-                let windIcon = L.divIcon({
-                    html: `<div class="wind-label ${windhighlightClass}">${station.properties.WG}</div>`
+            // Marker für Lufttemperatur
+            if (station.properties.LT != 'undefined') { // wenn Temperatur vorhanden (not undefined)
+                let tempIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
+                    html: `<div class="label-textMarker">${station.properties.LT}</div>`
                 });
-
-                // Marker
-                let windmarker = L.marker([
-                    station.geometry.coordinates[1],
-                    station.geometry.coordinates[0]
+                let tempMarker = L.marker([             // Marker erzeugen
+                    station.geometry.coordinates[1],        // lat
+                    station.geometry.coordinates[0]         // long
                 ], {
-                    icon: windIcon
+                    icon: tempIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
                 });
-                windmarker.addTo(windLayer);
-
+                tempMarker.addTo(templayer);            // zum templayer hinzufügen
             };
-
-
 
         };
 
-        // Kartenzoom auf alle Marker
+        // Karte an Extent von awsLayer verschieben
         map.fitBounds(awsLayer.getBounds());
+
     });
+
+
+              
+
+
+ 
+
+

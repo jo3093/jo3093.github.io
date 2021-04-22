@@ -3,16 +3,16 @@ h2 {
 }
 
 #map {
-    width: 90vw;
-    height: 90vh;
-    border: solid black 1px;
-    margin: auto;
+    width: 90vw;                        /* Breite von 90% von Browser */
+    height: 90vh;                       /* Höhe von 90% von Browser */
+    border: solid black 1px;          /* Umrandung */
+    margin: auto;                       /* Rand links und rechts gleich */
 }
 
-.snow-label {
+.label-textMarker {
     font-size: 1.2em;
     font-weight: bold;
-    display: inline;
+    display: inline;                    
     padding: 0.3em;
     border: 1px solid gray;
     background-color: silver;
@@ -31,21 +31,6 @@ h2 {
     background-color: red;
 }
 
-
-.wind-label {
-    font-size: 1.2em;
-    font-weight: bold;
-    display: inline;
-    padding: 0.3em;
-    border: 1px solid gray;
-    background-color: silver;
-    text-shadow:
-        -1px -1px 0 white,
-        -1px -1px 0 white,
-        -1px -1px 0 white,
-        -1px -1px 0 white;
-}
-
 .wind-10 {
     background-color: green;
 }
@@ -53,3 +38,5 @@ h2 {
 .wind-20 {
     background-color: orange;
 }
+
+
