@@ -136,8 +136,15 @@ fetch(awsURL)                                       // Anfrage auf Sever
 
             // Marker für Lufttemperatur
             if (station.properties.LT != undefined) { // wenn Temperatur vorhanden (not undefined)
+                let highlightTempClass = '';
+                if(station.properties.LT > 0) {
+                    highlightTempClass = 'positiv';
+                };
+                if(station.properties.LT < 0) {
+                    highlightTempClass = 'negativ';
+                };
                 let tempIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
-                    html: `<div class="label-textMarker">${station.properties.LT}</div>`
+                    html: `<div class="label-textMarker ${highlightTempClass}">${station.properties.LT}</div>`
                 });
                 let tempMarker = L.marker([             // Marker erzeugen
                     station.geometry.coordinates[1],        // lat

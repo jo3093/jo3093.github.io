@@ -58,3 +58,9 @@ h2 {
 }
 
 
+.positiv {
+    background-color: green;
+}
+.negativ {
+    background-color: red;
+}
