@@ -1,7 +1,9 @@
 // Leaflet-provider Basemap laden
+// https://leafletjs.com/reference-1.6.0.html#tilelayer
 let basemapGray = L.tileLayer.provider('BasemapAT.grau');       // als string Name
 
 // Karte erzeugen
+// https://leafletjs.com/reference-1.7.1.html#map
 let map = L.map("map", {                // id von html-Element und Options-Element {} für weitere Einstellung
     center: [47, 11],                   // Kartenzentrum
     zoom: 9,                            // Zoomlevel
@@ -10,7 +12,20 @@ let map = L.map("map", {                // id von html-Element und Options-Eleme
     ]
 }) 
 
+
+// Overlays Objekt
+// https://leafletjs.com/reference-1.7.1.html#featuregroup
+let overlays = {
+    stations: L.featureGroup(),
+    temperature: L.featureGroup(),
+    snowheight: L.featureGroup(),
+    windspeed: L.featureGroup(),
+    windirection: L.featureGroup()
+};
+
 // LayerControl Objekt erzeugen um verschiedenen Layers ein-/ausschalten
+// https://leafletjs.com/reference-1.7.1.html#control-layers
+// https://leafletjs.com/reference-1.6.0.html#layergroup
 let LayerControl = L.control.layers({
     "BasemapAT.grau": basemapGray,                                          // key angezeigte Name
     "BasemapAT.orthofoto": L.tileLayer.provider('BasemapAT.orthofoto'),
@@ -20,7 +35,14 @@ let LayerControl = L.control.layers({
         L.tileLayer.provider('BasemapAT.orthofoto'),
         L.tileLayer.provider('BasemapAT.overlay')
     ])                              
+}, {
+    "Wetterstationen Tirol": overlays.stations,
+    "Lufttemperatur [°C]": overlays.temperature,
+    "Schneehöhe [cm]": overlays.snowheight,
+    "Windgeschwindigkeit [m/s]": overlays.windspeed,
+    "Windrichtung": overlays.windirection
 }).addTo(map);
+overlays.temperature.addTo(map);
 
 
 
@@ -29,40 +51,17 @@ let LayerControl = L.control.layers({
 let awsURL = 'https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson';
 
 
-// FeatureGroups für eigene Layer
-
-//Wetterstationen
-let awsLayer = L.featureGroup();
-LayerControl.addOverlay(awsLayer, "Wetterstaitonen Tirol");         // zum LayerControl als Overlay hinzufügen mit Name
-//awsLayer.addTo(map);                                                // Layer wird auto. eingeschaltet
-
-// Schneehöhen
-let snowlayer = L.featureGroup();
-LayerControl.addOverlay(snowlayer, "Schneehöhe [cm]");
-//snowlayer.addTo(map);
-
-// Windstärke
-let windlayer = L.featureGroup();
-LayerControl.addOverlay(windlayer, "Windstärke [m/s]");
-//windlayer.addTo(map);
-
-//Temperatur
-let templayer = L.featureGroup();
-LayerControl.addOverlay(templayer, "Lufttemperatur [°C]");
-templayer.addTo(map);
-
-
-
 // Daten holen...
 fetch(awsURL)                                       // Anfrage auf Sever
     .then(answer => answer.json())                  // wenn ok => Daten laden und in json konvertieren 
     .then(json => {                                 // wenn ok => mit dem json-Objekt in nächsten Funktion weiterarbeiten
         for (station of json.features) {            // für jeden Eintrag in json.features = station (je Objekt mit geometry, properties, ...):
+            // https://leafletjs.com/reference-1.6.0.html#marker
             let marker = L.marker([                 // wird ein Marker erstellt
                 station.geometry.coordinates[1],        // lat
                 station.geometry.coordinates[0]         // long                                       
                                                         
-            ]).addTo(awsLayer);                     // nicht direkt zu map hinzufügen sondern zum awsLayer
+            ]).addTo(overlays.stations);                     // nicht direkt zu map hinzufügen sondern zum awsLayer
 
             // Für Pop-up Datum formatieren - JavaScript-Datumsobjekt erzeugen
             let formattedDate = new Date(station.properties.date);
@@ -101,6 +100,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 } else {
                     highlightSnowClass = 'snow-8';
                 } 
+                // https://leafletjs.com/reference-1.6.0.html#divicon
                 let snowIcon = L.divIcon({              // Icon erzeugen (div von html um die Höhe reinzuschreiben mit css-Klasse für Formatierung)
                     html: `<div class="label-textMarker ${highlightSnowClass}">${station.properties.HS}</div>`
                 });
@@ -110,7 +110,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 ], {
                     icon: snowIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
                 });
-                snowMarker.addTo(snowlayer);             // zum snowlayer hinzufügen
+                snowMarker.addTo(overlays.snowheight);             // zum snowlayer hinzufügen
             };
             
             // Marker für Windstärke
@@ -131,7 +131,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 ], {
                     icon: windIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
                 });
-                windMarker.addTo(windlayer);             // zum windlayer hinzufügen
+                windMarker.addTo(overlays.windspeed);             // zum windlayer hinzufügen
             };
 
             // Marker für Lufttemperatur
@@ -152,7 +152,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 ], {
                     icon: tempIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
                 });
-                tempMarker.addTo(templayer);            // zum templayer hinzufügen
+                tempMarker.addTo(overlays.temperature);            // zum templayer hinzufügen
             };
 
         };
