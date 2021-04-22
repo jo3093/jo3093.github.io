@@ -82,14 +82,25 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 `);
 
             // Marker für Schneehöhen
-            if (station.properties.HS) {                // wenn Schneehöhe vorhanden 
+            if (station.properties.HS != undefined &&  station.properties.HS >= 0) {                // wenn Schneehöhe vorhanden 
                 let highlightSnowClass = '';            // Variable mit leerem String (defautl) um je nach Schneehöhe andere css-Klasse hinzufügen für unter. Formatierung
-                if(station.properties.HS > 100) {
-                    highlightSnowClass = 'snow-100';
-                };
-                if(station.properties.HS > 200) {
-                    highlightSnowClass = 'snow-200';
-                };
+                if (station.properties.HS < 1) {
+                    highlightSnowClass = 'snow-1';
+                } else if (station.properties.HS < 10) {
+                    highlightSnowClass = 'snow-2';
+                } else if (station.properties.HS < 25) {
+                    highlightSnowClass = 'snow-3';
+                } else if (station.properties.HS < 50) {
+                    highlightSnowClass = 'snow-4';
+                } else if (station.properties.HS < 100) {
+                    highlightSnowClass = 'snow-5';
+                } else if (station.properties.HS < 200) {
+                    highlightSnowClass = 'snow-6';
+                } else if (station.properties.HS < 300) {
+                    highlightSnowClass = 'snow-7';
+                } else {
+                    highlightSnowClass = 'snow-8';
+                } 
                 let snowIcon = L.divIcon({              // Icon erzeugen (div von html um die Höhe reinzuschreiben mit css-Klasse für Formatierung)
                     html: `<div class="label-textMarker ${highlightSnowClass}">${station.properties.HS}</div>`
                 });
@@ -124,7 +135,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
             };
 
             // Marker für Lufttemperatur
-            if (station.properties.LT != 'undefined') { // wenn Temperatur vorhanden (not undefined)
+            if (station.properties.LT != undefined) { // wenn Temperatur vorhanden (not undefined)
                 let tempIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
                     html: `<div class="label-textMarker">${station.properties.LT}</div>`
                 });
@@ -138,7 +149,8 @@ fetch(awsURL)                                       // Anfrage auf Sever
             };
 
         };
-
+    
+        
         // Karte an Extent von awsLayer verschieben
         map.fitBounds(awsLayer.getBounds());
 

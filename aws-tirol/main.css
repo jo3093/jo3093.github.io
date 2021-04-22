@@ -16,20 +16,38 @@ h2 {
     padding: 0.3em;
     border: 1px solid gray;
     background-color: silver;
-    text-shadow:
-        -1px -1px 0 white,
-        -1px -1px 0 white,
-        -1px -1px 0 white,
-        -1px -1px 0 white;
 }
 
-.snow-100 {
-    background-color: darkblue;
+
+.snow-0 {
+    background-color: #fff;
+}
+.snow-1 {
+    background-color: #ffffb2;
+}
+.snow-2 {
+    background-color: #b0ffbc;
+}
+.snow-3 {
+    background-color: #8cffff;
+}
+.snow-4 {
+    background-color: #19cdff;
+}
+.snow-5 {
+    background-color: #1982ff;
+}
+.snow-6 {
+    background-color: #0f5abe;
+}
+.snow-7 {
+    background-color: #784bff;
+}
+.snow-8 {
+    background-color: #cd0feb;
 }
 
-.snow-200 {
-    background-color: red;
-}
+
 
 .wind-10 {
     background-color: green;
