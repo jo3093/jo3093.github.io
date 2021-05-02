@@ -17,7 +17,7 @@ let overlays = {
     temperature: L.featureGroup(),
     snowheight: L.featureGroup(),
     windspeed: L.featureGroup(),
-    winddirection: L.featureGroup()
+    humidity: L.featureGroup()
 };
 
 
@@ -36,7 +36,7 @@ let LayerControl = L.control.layers({
     "Lufttemperatur [°C]": overlays.temperature,
     "Schneehöhe [cm]": overlays.snowheight,
     "Windgeschwindigkeit [m/s]": overlays.windspeed,
-    "Windrichtung [°]": overlays.winddirection
+    "Luftfeuchtigkeit [%]": overlays.humidity
 }, {
     collapsed: false                                                          // automatisch ausgeklappt
 }).addTo(map);
@@ -66,6 +66,15 @@ let getColor = (value, colorRamp) => {
     return "black";                                                 // falls Wert nicht abgdeckt wird
 };
 
+// Funkjtion Windrichtung Übersetzung
+let windlabel = (value) => {
+    let windRamp = DIRECTIONS
+    for (let rule of windRamp) {
+        if (value >= rule.min && value < rule.max) {
+            return rule.dir;
+        }
+    }
+}
 
 // Funktion erzeugt Marker
 let newLabel = (coords, options) => {
@@ -107,6 +116,7 @@ fetch(awsURL)                                       // Anfrage auf Sever
                     <li>Schneehöhe: ${station.properties.HS || '?'} cm</li>
                     <li>Relative Luftfeuchtigkeit: ${station.properties.RH || '?'} %</li>
                     <li>Windgeschwindigkeit: ${station.properties.WG || '?'} m/s</li>
+                    <li>Windrichtung: ${windlabel(station.properties.WR) || '?'}</li>
                 </ul>
                 <a target="_blank" href="https://wiski.tirol.gv.at/lawine/grafiken/1100/standard/tag/${station.properties.plot}.png">Grafik</a>
                 `);
@@ -141,7 +151,15 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 mrk.addTo(overlays.temperature)
             };
 
-
+            // Marker für Leuftfeuchtigkeit
+            if (typeof station.properties.RH == "number") {                        // wenn Wert vorhanden ist
+                let mrk = newLabel(station.geometry.coordinates, {                 // das was die Funktion zurückgibt wird in mrk gespeichert
+                    value: station.properties.RH.toFixed(0),                       // auf eine Nachkommastelle runden
+                    colors: COLORS.humidity,
+                    station: station.properties.name
+                });
+                mrk.addTo(overlays.humidity)
+            };
 
         };
     
@@ -152,4 +170,6 @@ fetch(awsURL)                                       // Anfrage auf Sever
     });
 
 
+L.control.rainviewer().addTo(map);
 
+ 
