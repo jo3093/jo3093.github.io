@@ -1,9 +1,7 @@
 // Leaflet-provider Basemap laden
-// https://leafletjs.com/reference-1.6.0.html#tilelayer
 let basemapGray = L.tileLayer.provider('BasemapAT.grau');       // als string Name
 
 // Karte erzeugen
-// https://leafletjs.com/reference-1.7.1.html#map
 let map = L.map("map", {                // id von html-Element und Options-Element {} für weitere Einstellung
     center: [47, 11],                   // Kartenzentrum
     zoom: 9,                            // Zoomlevel
@@ -13,19 +11,17 @@ let map = L.map("map", {                // id von html-Element und Options-Eleme
 }) 
 
 
-// Overlays Objekt
-// https://leafletjs.com/reference-1.7.1.html#featuregroup
+// Overlays definieren  
 let overlays = {
     stations: L.featureGroup(),
     temperature: L.featureGroup(),
     snowheight: L.featureGroup(),
     windspeed: L.featureGroup(),
-    windirection: L.featureGroup()
+    winddirection: L.featureGroup()
 };
 
+
 // LayerControl Objekt erzeugen um verschiedenen Layers ein-/ausschalten
-// https://leafletjs.com/reference-1.7.1.html#control-layers
-// https://leafletjs.com/reference-1.6.0.html#layergroup
 let LayerControl = L.control.layers({
     "BasemapAT.grau": basemapGray,                                          // key angezeigte Name
     "BasemapAT.orthofoto": L.tileLayer.provider('BasemapAT.orthofoto'),
@@ -40,15 +36,51 @@ let LayerControl = L.control.layers({
     "Lufttemperatur [°C]": overlays.temperature,
     "Schneehöhe [cm]": overlays.snowheight,
     "Windgeschwindigkeit [m/s]": overlays.windspeed,
-    "Windrichtung": overlays.windirection
+    "Windrichtung [°]": overlays.winddirection
+}, {
+    collapsed: false                                                          // automatisch ausgeklappt
 }).addTo(map);
+
+// Overlay Temperatur auto. eingeschaltet
 overlays.temperature.addTo(map);
 
 
+// Maßstab
+L.control.scale({
+    imperial: false,
+    maxWidth: 200
+}).addTo(map);
 
 
 // Wetterstationsdaten einbinden
 let awsURL = 'https://wiski.tirol.gv.at/lawine/produkte/ogd.geojson';
+
+
+// Funktion für Einfärbung (colors.js)
+let getColor = (value, colorRamp) => {
+    for (let rule of colorRamp) {
+        if (value >= rule.min && value < rule.max) {
+            return rule.col;
+        }
+    }
+    return "black";                                                 // falls Wert nicht abgdeckt wird
+};
+
+
+// Funktion erzeugt Marker
+let newLabel = (coords, options) => {
+    let color = getColor(options.value, options.colors)
+    let label_fun = L.divIcon({
+        html: `<div style="background-color:${color}">${options.value}</div>`,
+        className: "text-label"                                     // ansprechen im css über . .text-label div
+    })
+    let marker_fun = L.marker([coords[1], coords[0]], {
+        icon: label_fun,
+        title: `${options.station} (${coords[2].toFixed(0)}m)`
+    })
+    return marker_fun;
+};
+
 
 
 // Daten holen...
@@ -56,7 +88,6 @@ fetch(awsURL)                                       // Anfrage auf Sever
     .then(answer => answer.json())                  // wenn ok => Daten laden und in json konvertieren 
     .then(json => {                                 // wenn ok => mit dem json-Objekt in nächsten Funktion weiterarbeiten
         for (station of json.features) {            // für jeden Eintrag in json.features = station (je Objekt mit geometry, properties, ...):
-            // https://leafletjs.com/reference-1.6.0.html#marker
             let marker = L.marker([                 // wird ein Marker erstellt
                 station.geometry.coordinates[1],        // lat
                 station.geometry.coordinates[0]         // long                                       
@@ -81,92 +112,44 @@ fetch(awsURL)                                       // Anfrage auf Sever
                 `);
 
             // Marker für Schneehöhen
-            if (station.properties.HS != undefined &&  station.properties.HS >= 0) {                // wenn Schneehöhe vorhanden 
-                let highlightSnowClass = '';            // Variable mit leerem String (defautl) um je nach Schneehöhe andere css-Klasse hinzufügen für unter. Formatierung
-                if (station.properties.HS < 1) {
-                    highlightSnowClass = 'snow-1';
-                } else if (station.properties.HS < 10) {
-                    highlightSnowClass = 'snow-2';
-                } else if (station.properties.HS < 25) {
-                    highlightSnowClass = 'snow-3';
-                } else if (station.properties.HS < 50) {
-                    highlightSnowClass = 'snow-4';
-                } else if (station.properties.HS < 100) {
-                    highlightSnowClass = 'snow-5';
-                } else if (station.properties.HS < 200) {
-                    highlightSnowClass = 'snow-6';
-                } else if (station.properties.HS < 300) {
-                    highlightSnowClass = 'snow-7';
-                } else {
-                    highlightSnowClass = 'snow-8';
-                } 
-                // https://leafletjs.com/reference-1.6.0.html#divicon
-                let snowIcon = L.divIcon({              // Icon erzeugen (div von html um die Höhe reinzuschreiben mit css-Klasse für Formatierung)
-                    html: `<div class="label-textMarker ${highlightSnowClass}">${station.properties.HS}</div>`
+            if (typeof station.properties.HS == "number" &&  station.properties.HS >= 0) {                 // wenn Schneehöhe vorhanden ist und >= 0 
+                let mrk = newLabel(station.geometry.coordinates, {                                         // das was die Funktion zurückgibt wird in mrk gespeichert
+                    value: station.properties.HS.toFixed(0),                                               // auf ganze Zahl runden
+                    colors: COLORS.snowheight,
+                    station: station.properties.name
                 });
-                let snowMarker = L.marker([             // Marker erzeugen
-                    station.geometry.coordinates[1],        // lat
-                    station.geometry.coordinates[0]         // long
-                ], {
-                    icon: snowIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
-                });
-                snowMarker.addTo(overlays.snowheight);             // zum snowlayer hinzufügen
+                mrk.addTo(overlays.snowheight)
             };
             
             // Marker für Windstärke
-            if (station.properties.WG) {                // wenn Windstärke vorhanden 
-                let highlightWindClass = '';            // Variable mit leerem String (defautl) um je nach Windstärke andere css-Klasse hinzufügen für unter. Formatierung
-                if(station.properties.WG > 10) {
-                    highlightWindClass = 'wind-10';
-                };
-                if(station.properties.WG > 20) {
-                    highlightWindClass = 'wind-20';
-                };
-                let windIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
-                    html: `<div class="label-textMarker ${highlightWindClass}">${station.properties.WG}</div>`
+            if (typeof station.properties.WG == "number") {                        // wenn Windstärke vorhanden 
+                let mrk = newLabel(station.geometry.coordinates, {                 // das was die Funktion zurückgibt wird in mrk gespeichert
+                    value: station.properties.WG.toFixed(0),                       // auf ganze Zahl runden
+                    colors: COLORS.windspeed,
+                    station: station.properties.name
                 });
-                let windMarker = L.marker([             // Marker erzeugen
-                    station.geometry.coordinates[1],        // lat
-                    station.geometry.coordinates[0]         // long
-                ], {
-                    icon: windIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
-                });
-                windMarker.addTo(overlays.windspeed);             // zum windlayer hinzufügen
+                mrk.addTo(overlays.windspeed)
             };
 
             // Marker für Lufttemperatur
-            if (station.properties.LT != undefined) { // wenn Temperatur vorhanden (not undefined)
-                let highlightTempClass = '';
-                if(station.properties.LT > 0) {
-                    highlightTempClass = 'positiv';
-                };
-                if(station.properties.LT < 0) {
-                    highlightTempClass = 'negativ';
-                };
-                let tempIcon = L.divIcon({              // Icon erzeugen (div von html um die Stärke reinzuschreiben mit css-Klasse für Formatierung)
-                    html: `<div class="label-textMarker ${highlightTempClass}">${station.properties.LT}</div>`
+            if (typeof station.properties.LT == "number") {                        // wenn Temperatur vorhanden ist
+                let mrk = newLabel(station.geometry.coordinates, {                 // das was die Funktion zurückgibt wird in mrk gespeichert
+                    value: station.properties.LT.toFixed(1),                       // auf eine Nachkommastelle runden
+                    colors: COLORS.temperature,
+                    station: station.properties.name
                 });
-                let tempMarker = L.marker([             // Marker erzeugen
-                    station.geometry.coordinates[1],        // lat
-                    station.geometry.coordinates[0]         // long
-                ], {
-                    icon: tempIcon                      // nach Koordinaten, Objekt mit weiteren Konfigurationen → Icon
-                });
-                tempMarker.addTo(overlays.temperature);            // zum templayer hinzufügen
+                mrk.addTo(overlays.temperature)
             };
+
+
 
         };
     
         
-        // Karte an Extent von awsLayer verschieben
-        map.fitBounds(awsLayer.getBounds());
+        // Karte an Extent von stations verschieben
+        map.fitBounds(overlays.stations.getBounds());
 
     });
 
-
-              
-
-
- 
 
 
