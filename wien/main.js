@@ -17,7 +17,8 @@ let baselayers = {
 let overlays = {
     busLines: L.featureGroup(),
     busStops: L.featureGroup(),
-    pedAreas: L.featureGroup()
+    pedAreas: L.featureGroup(),
+    POI: L.featureGroup()
 };
 
 // Karte initialisieren und auf Wiens Wikipedia Koordinate blicken
@@ -47,6 +48,7 @@ let layerControl = L.control.layers({
 overlays.busLines.addTo(map);
 overlays.busStops.addTo(map);
 overlays.pedAreas.addTo(map);
+overlays.POI.addTo(map)
 
 // // Tourist-Haltestellen laden, zur Karte hinzufügen und Pop-up
 // fetch("data/TOURISTIKHTSVSLOGD.json")                           // statt URL Pfad zur Datei (lokal gespeichert)
@@ -112,7 +114,7 @@ let drawBusLines = (geojsonData) => {
                 color: col
             }
         },
-        attribution: '<a href="https://data.wien.gv.at">Stadt Wien</a>, <a href="https://mapicons.mapsmarker.com">Maps Icons Collection</a>'
+        attribution: '<a href="https://data.wien.gv.at">Stadt Wien</a>'
     }).addTo(overlays.busLines);
 }
 
@@ -122,19 +124,47 @@ let drawPedestrainAreas = (geoJsonData) => {
             layer.bindPopup(`
             <strong>Fußgängerzone ${feature.properties.ADRESSE}</strong>
             <hr>
-            ${feature.properties.ZEITRAUM}
+            ${feature.properties.ZEITRAUM || ""}
             <br>
-            ${feature.properties.AUSN_TEXT}
+            ${feature.properties.AUSN_TEXT || ""}
             `);
         },
         style: (feature) => {
            return {
                stroke: true,
-               fillColor: "yellow"
+               color: "silver",
+               fillColor: "yellow",
+               fillOpacity: 0.3
            }  
-        }
+        },
+        attribution: '<a href="https://data.wien.gv.at">Stadt Wien</a>'
     }).addTo(overlays.pedAreas)
 }
+
+let drawPOIs = (geojsonData) => {
+    L.geoJson(geojsonData, {
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(`
+            <strong>${feature.properties.NAME}</strong>
+            <hr>
+            ${feature.properties.ADRESSE}
+            <br>
+            <img src="${feature.properties.THUMBNAIL}" alt="image description"/>
+            <a href="${feature.properties.WEITERE_INF}">Weitere Infos</a>
+            `);
+        },
+        pointToLayer: (geoJsonPoint, latlng) => {
+            return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: 'icons/sehenswuerdigogd.png',
+                    iconSize: [27, 27]
+                })
+            })
+        },
+        attribution: '<a href="https://data.wien.gv.at">Stadt Wien</a>'
+    }).addTo(overlays.POI);
+}
+
 
 
 // Schleife für alle Datensätze - je nach Title führ eigene Funktion um Icon und Pop-up zu erstellen
@@ -148,6 +178,8 @@ for (let config of OGDWIEN) {
                 drawBusLines(geojsonData);
             } else if (config.title == "Fußgängerzonen") {
                 drawPedestrainAreas(geojsonData);
+            } else if (config.title == "Sehenswürdigkeiten") {
+                drawPOIs(geojsonData);
             }
         })
 
