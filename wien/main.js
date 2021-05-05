@@ -81,8 +81,9 @@ let drawBusStop = (geojsonData) => {
                     iconSize: [40, 40]
                 })
             })
-        }
-    }).addTo(map);
+        },
+        attribution: '<a href="https://data.wien.gv.at">Stadt Wien</a> - <a href="https://mapicons.mapsmarker.com">Maps Icons Collection</a>'
+    }).addTo(overlays.busStops);
 }
 
 // Schleife für alle Datensätze - je nach Title führ eigene Funktion um Icon und Pop-up zu erstellen
