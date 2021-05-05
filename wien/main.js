@@ -47,3 +47,22 @@ let layerControl = L.control.layers({
 overlays.busLines.addTo(map);
 overlays.busStops.addTo(map);
 overlays.pedAreas.addTo(map);
+
+// Tourist-Haltestellen laden, zur Karte hinzufügen und Pop-up
+fetch("data/TOURISTIKHTSVSLOGD.json")                           // statt URL Pfad zur Datei (lokal gespeichert)
+    .then(response => response.json())                          // wenn erfolgreich geladen die Antwort = response in json-Format konvertieren
+    .then(stations => {                                         // wenn erfolgreich Daten in Variable stations speichern
+        L.geoJson(stations, {                                   // eigene Funktion fürs Anzeigen mit Leaflet. 1 Parameter Daten, 2 Parameter Objekt mit unter. Optionen
+            onEachFeature: (feature, layer) => {                // onEachFeature = Funktion wird auf jedes Element des geoJson angewendet. 
+                layer.bindPopup(feature.properties.STAT_NAME)   
+            },
+            pointToLayer: (geoJsonPoint, latlng) => {           // um eigenen Icon zu erzeugen
+                return L.marker(latlng, {
+                    icon: L.icon({
+                        iconUrl: 'icons/busstop.png',
+                        iconSize: [40, 40]
+                    })
+                })
+            }
+        }).addTo(map);     
+    })
