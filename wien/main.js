@@ -75,7 +75,8 @@ let drawBusStop = (geojsonData) => {
             layer.bindPopup(`
             <strong>${feature.properties.LINE_NAME}</strong>
             <hr>
-            Station:${feature.properties.STAT_NAME}`)
+            Station:${feature.properties.STAT_NAME}
+            `);
         },
         pointToLayer: (geoJsonPoint, latlng) => {
             return L.marker(latlng, {
@@ -97,7 +98,8 @@ let drawBusLines = (geojsonData) => {
             <hr>
             von ${feature.properties.FROM_NAME}
             <br>
-            nach ${feature.properties.TO_NAME}`)
+            nach ${feature.properties.TO_NAME}
+            `);
         }, style: (feature) => {
             col = COLORS.buslines[feature.properties.LINE_NAME]
             // if (feature.properties.LINE_NAME == 'Blue Line') {
@@ -114,6 +116,25 @@ let drawBusLines = (geojsonData) => {
     }).addTo(overlays.busLines);
 }
 
+let drawPedestrainAreas = (geoJsonData) => {
+    L.geoJson(geoJsonData, {
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(`
+            <strong>Fußgängerzone ${feature.properties.ADRESSE}</strong>
+            <hr>
+            ${feature.properties.ZEITRAUM}
+            <br>
+            ${feature.properties.AUSN_TEXT}
+            `);
+        },
+        style: (feature) => {
+           return {
+               stroke: true,
+               fillColor: "yellow"
+           }  
+        }
+    }).addTo(overlays.pedAreas)
+}
 
 
 // Schleife für alle Datensätze - je nach Title führ eigene Funktion um Icon und Pop-up zu erstellen
@@ -125,6 +146,8 @@ for (let config of OGDWIEN) {
                 drawBusStop(geojsonData);
             } else if (config.title == "Liniennetz Vienna Sightseeing") {
                 drawBusLines(geojsonData);
+            } else if (config.title == "Fußgängerzonen") {
+                drawPedestrainAreas(geojsonData);
             }
         })
 
