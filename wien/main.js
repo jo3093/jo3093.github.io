@@ -48,21 +48,51 @@ overlays.busLines.addTo(map);
 overlays.busStops.addTo(map);
 overlays.pedAreas.addTo(map);
 
-// Tourist-Haltestellen laden, zur Karte hinzufügen und Pop-up
-fetch("data/TOURISTIKHTSVSLOGD.json")                           // statt URL Pfad zur Datei (lokal gespeichert)
-    .then(response => response.json())                          // wenn erfolgreich geladen die Antwort = response in json-Format konvertieren
-    .then(stations => {                                         // wenn erfolgreich Daten in Variable stations speichern
-        L.geoJson(stations, {                                   // eigene Funktion fürs Anzeigen mit Leaflet. 1 Parameter Daten, 2 Parameter Objekt mit unter. Optionen
-            onEachFeature: (feature, layer) => {                // onEachFeature = Funktion wird auf jedes Element des geoJson angewendet. 
-                layer.bindPopup(feature.properties.STAT_NAME)   
-            },
-            pointToLayer: (geoJsonPoint, latlng) => {           // um eigenen Icon zu erzeugen
-                return L.marker(latlng, {
-                    icon: L.icon({
-                        iconUrl: 'icons/busstop.png',
-                        iconSize: [40, 40]
-                    })
+// // Tourist-Haltestellen laden, zur Karte hinzufügen und Pop-up
+// fetch("data/TOURISTIKHTSVSLOGD.json")                           // statt URL Pfad zur Datei (lokal gespeichert)
+//     .then(response => response.json())                          // wenn erfolgreich geladen die Antwort = response in json-Format konvertieren
+//     .then(stations => {                                         // wenn erfolgreich Daten in Variable stations speichern
+//         L.geoJson(stations, {                                   // eigene Funktion fürs Anzeigen mit Leaflet. 1 Parameter Daten, 2 Parameter Objekt mit unter. Optionen
+//             onEachFeature: (feature, layer) => {                // onEachFeature = Funktion wird auf jedes Element des geoJson angewendet. 
+//                 layer.bindPopup(feature.properties.STAT_NAME)   
+//             },
+//             pointToLayer: (geoJsonPoint, latlng) => {           // um eigenen Icon zu erzeugen
+//                 return L.marker(latlng, {
+//                     icon: L.icon({
+//                         iconUrl: 'icons/busstop.png',
+//                         iconSize: [40, 40]
+//                     })
+//                 })
+//             }
+//         }).addTo(map);     
+//     })
+
+
+// Funktionen
+let drawBusStop = (geojsonData) => {
+    L.geoJson(geojsonData, {
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(feature.properties.STAT_NAME)
+        },
+        pointToLayer: (geoJsonPoint, latlng) => {
+            return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: 'icons/busstop.png',
+                    iconSize: [40, 40]
                 })
+            })
+        }
+    }).addTo(map);
+}
+
+// Schleife für alle Datensätze - je nach Title führ eigene Funktion um Icon und Pop-up zu erstellen
+for (let config of OGDWIEN) {
+    fetch(config.data)
+        .then(response => response.json())
+        .then(geojsonData => {
+            if (config.title == "Haltestellen Vienna Sightseeing") {
+                drawBusStop(geojsonData);
             }
-        }).addTo(map);     
-    })
+        })
+
+}
