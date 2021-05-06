@@ -200,3 +200,10 @@ for (let config of OGDWIEN) {
 
 // Leaflet-hash
 // L.hash(map);
+
+
+// Reachability plugin
+L.control.reachability({
+    // add settings/options here
+    apiKey: '5b3ce3597851110001cf62488f6a2d068a8f4202b5b11f59459fa204'
+}).addTo(map);
