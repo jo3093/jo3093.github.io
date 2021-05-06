@@ -16,19 +16,31 @@ let baselayers = {
 // Overlays für die Themen zum Ein- und Ausschalten definieren
 let overlays = {
     busLines: L.featureGroup(),
-    busStops: L.featureGroup(),
+    busStops: L.markerClusterGroup(),
     pedAreas: L.featureGroup(),
-    POI: L.featureGroup()
+    POI: L.markerClusterGroup()
 };
+
 
 // Karte initialisieren und auf Wiens Wikipedia Koordinate blicken
 let map = L.map("map", {
+    fullscreenControl: true,
     center: [48.208333, 16.373056],
     zoom: 13,
     layers: [
         baselayers.grau
     ]
 });
+
+
+// Mini-Map
+var miniMap = new L.Control.MiniMap(
+    L.tileLayer.provider("BasemapAT.grau"), {
+        toggleDisplay: true,
+        minimized: true
+    }
+).addTo(map);
+
 
 // Kartenhintergründe und Overlays zur Layer-Control hinzufügen
 let layerControl = L.control.layers({
@@ -41,7 +53,8 @@ let layerControl = L.control.layers({
 }, {
     "Liniennetz Vienna Sightseeing": overlays.busLines,
     "Haltestellen Vienna Sightseeing": overlays.busStops,
-    "Fußgängerzonen": overlays.pedAreas
+    "Fußgängerzonen": overlays.pedAreas,
+    "Sehenswürdigkeiten": overlays.POI
 }).addTo(map);
 
 // alle Overlays nach dem Laden anzeigen
@@ -184,3 +197,6 @@ for (let config of OGDWIEN) {
         })
 
 }
+
+// Leaflet-hash
+// L.hash(map);
