@@ -203,7 +203,42 @@ for (let config of OGDWIEN) {
 
 
 // Reachability plugin
+
+let styleIntervals = (feature) => {
+    let color = "";
+    let range = feature.properties.Range;
+    if (feature.properties.Measure === "time") {
+        color = COLORS.minutes[range];
+    } else if (feature.properties.Measure === "distance") {
+        color = COLORS.kilometers[range];
+    } else {
+        color = "black";
+    }
+    return {
+        color: color,
+        opacity: 0.5,
+        fillOpacity: 0.2
+    };
+};
+
 L.control.reachability({
     // add settings/options here
-    apiKey: '5b3ce3597851110001cf62488f6a2d068a8f4202b5b11f59459fa204'
+    apiKey: '5b3ce3597851110001cf62488f6a2d068a8f4202b5b11f59459fa204',
+    styleFn: styleIntervals,
+    drawButtonContent: '',
+    drawButtonStyleClass: 'fa fa-pencil-alt fa-2x',
+    deleteButtonContent: '',
+    deleteButtonStyleClass: 'fa fa-trash fa-2x',
+    distanceButtonContent: '',
+    distanceButtonStyleClass: 'fa fa-road fa-2x',
+    timeButtonContent: '',
+    timeButtonStyleClass: 'fa fa-clock fa-2x',
+    travelModeButton1Content: '',
+    travelModeButton1StyleClass: 'fa fa-car fa-2x',
+    travelModeButton2Content: '',
+    travelModeButton2StyleClass: 'fa fa-bicycle fa-2x',
+    travelModeButton3Content: '',
+    travelModeButton3StyleClass: 'fa fa-male fa-2x',
+    travelModeButton4Content: '',
+    travelModeButton4StyleClass: 'fa fa-wheelchair fa-2x'
 }).addTo(map);
