@@ -66,7 +66,13 @@ nav.onchange = (evt) => {           // die Änderung wird in an evt übergeben
 
 };
 
-
+// Mini-Map
+var miniMap = new L.Control.MiniMap(
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"), {
+        toggleDisplay: true,
+        minimized: true
+    }
+).addTo(map);
 
 
 
