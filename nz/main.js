@@ -15,6 +15,7 @@ const map = L.map("map", {
     // Karteneigenschaften (dictionary in js Objekt auch mit key: value Paaren)
     //center: [stop.lat, stop.lng],    // [] Liste/Array
     //zoom: 13,                            // 1 wäre ganze Welt
+    fullscreenControl: true,
     layers: [
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")       // Layer mit OSM als Hintergrundkarte, s = Server, z = Zoomlevel, x = longitude, y = latitude 
     ]
