@@ -172,4 +172,11 @@ fetch(awsURL)                                       // Anfrage auf Sever
 
 L.control.rainviewer().addTo(map);
 
- 
+// Mini-Map
+var miniMap = new L.Control.MiniMap(
+    L.tileLayer.provider('BasemapAT.grau'), {
+        toggleDisplay: true,
+        minimized: false,
+        zoomLevelFixed: 6
+    }
+).addTo(map);
