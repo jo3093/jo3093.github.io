@@ -7,7 +7,8 @@ let map = L.map("map", {                // id von html-Element und Options-Eleme
     zoom: 9,                            // Zoomlevel
     layers: [                           // Layers als Array
         basemapGray
-    ]
+    ],
+    fullscreenControl: true
 }) 
 
 
