@@ -84,3 +84,8 @@ const drawTrack = (nr) => {
 
 const selectedTrack = 12;
 drawTrack(selectedTrack);
+
+let pulldown = document.querySelector("#pulldown");
+for (let track of BIKETIROL) {
+    pulldown.innerHTML += `<option>${track.nr}</option>`;
+};
