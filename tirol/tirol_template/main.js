@@ -86,6 +86,12 @@ const selectedTrack = 12;
 drawTrack(selectedTrack);
 
 let pulldown = document.querySelector("#pulldown");
+let selected = '';               // leere Variable                                                               
 for (let track of BIKETIROL) {
-    pulldown.innerHTML += `<option>${track.nr}</option>`;
+    if (selectedTrack == track.nr) {        // wenn zutrifft property auf selected
+        selected = 'selected';
+    } else {
+        selected = '';                      // sonst leer
+    }
+    pulldown.innerHTML += `<option ${selected} value="${track.nr}">${track.nr}: ${track.etappe}</option>`;                       // value um draufzugreifen können (je Tracknummer)
 };
