@@ -52,6 +52,8 @@ const elevationControl = L.control.elevation({
 
 // Funktion zum Track zeichnen mit Nummer als Parameter mit L.GPX Plugin
 const drawTrack = (nr) => {
+    elevationControl.clear();                                   // Profil nur ausgewählte Track wird angezeigt
+    overlays.tracks.clearLayers();                              // geladenen Layers von davor entfernen - Fehler schwarzen Linien bleiben
     let gpxTrack = new L.GPX(`tracks/${nr}.gpx`, {
         async: true,                                            // wartet bis gesamte Datei geladen ist
         marker_options: {                                       // Marker für Linie (siehe docu github)

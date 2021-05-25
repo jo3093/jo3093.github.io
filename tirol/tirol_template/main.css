@@ -24,7 +24,7 @@ header a {
 
 #map {
     width: calc(100% -2px);
-    height: 70vh;
+    height: 50vh;
     border: 1px solid gray;
 }
 
