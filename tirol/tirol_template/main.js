@@ -43,9 +43,15 @@ let layerControl = L.control.layers({
 // Overlay mit GPX-Track anzeigen
 overlays.tracks.addTo(map);
 
+// Profile Control
+const elevationControl = L.control.elevation({
+    elevationDiv: '#profile',
+    followMarker: false,                                    // Kartenausschnitt geht nicht mit 
+    theme: 'lime-theme',
+}).addTo(map)
+
 // Funktion zum Track zeichnen mit Nummer als Parameter mit L.GPX Plugin
 const drawTrack = (nr) => {
-    console.log('Track: ', nr);
     let gpxTrack = new L.GPX(`tracks/${nr}.gpx`, {
         async: true,                                            // wartet bis gesamte Datei geladen ist
         marker_options: {                                       // Marker für Linie (siehe docu github)
@@ -62,7 +68,6 @@ const drawTrack = (nr) => {
         console.log('loaded gpx');
         map.fitBounds(gpxTrack.getBounds());                      // Kartenausschnitt auf gpx-Track ausrichten/zoomen
         // PopUp
-        // Name, max_height, min_height, total_dist
         gpxTrack.bindPopup(`
         <h4>${gpxTrack.get_name()}</h4>
         <ul>
@@ -71,9 +76,10 @@ const drawTrack = (nr) => {
             <li>Distanz: ${(gpxTrack.get_distance()/1000).toFixed(2)} km</li>
             <li>Höhenmeter bergauf: ${Math.round(gpxTrack.get_elevation_gain())} m</li>
             <li>Höhenmeter bergab: ${Math.round(gpxTrack.get_elevation_loss())} m</li>
-        `)                                             
-
+        </ul>
+         `)                                             
     });
+    elevationControl.load(`tracks/${nr}.gpx`);
 };
 
 const selectedTrack = 12;
