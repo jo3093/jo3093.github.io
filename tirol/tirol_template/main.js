@@ -61,7 +61,19 @@ const drawTrack = (nr) => {
     gpxTrack.on("loaded", () => {                               // um auf Ereigniss (wenn vollständig geladen) reagieren
         console.log('loaded gpx');
         map.fitBounds(gpxTrack.getBounds());                      // Kartenausschnitt auf gpx-Track ausrichten/zoomen
-    })                                             
+        // PopUp
+        // Name, max_height, min_height, total_dist
+        gpxTrack.bindPopup(`
+        <h4>${gpxTrack.get_name()}</h4>
+        <ul>
+            <li>Niedrigster Punkt: ${Math.round(gpxTrack.get_elevation_min())} m</li>
+            <li>Höchster Punkt: ${Math.round(gpxTrack.get_elevation_max())} m</li>
+            <li>Distanz: ${(gpxTrack.get_distance()/1000).toFixed(2)} km</li>
+            <li>Höhenmeter bergauf: ${Math.round(gpxTrack.get_elevation_gain())} m</li>
+            <li>Höhenmeter bergab: ${Math.round(gpxTrack.get_elevation_loss())} m</li>
+        `)                                             
+
+    });
 };
 
 const selectedTrack = 12;
