@@ -43,9 +43,17 @@ let layerControl = L.control.layers({
 // Overlay mit GPX-Track anzeigen
 overlays.tracks.addTo(map);
 
-// Funktion zum Track zeichnen mit Nummer als Parameter
+// Funktion zum Track zeichnen mit Nummer als Parameter mit L.GPX Plugin
 const drawTrack = (nr) => {
-    console.log('Track: ', nr)
+    console.log('Track: ', nr);
+    let gpxTrack = new L.GPX(`tracks/${nr}.gpx`, {
+        async: true,                                            // wartet bis gesamte Datei geladen ist
+        marker_options: {                                       // Marker für Linie (siehe docu github)
+            startIconUrl: `icons/number_${nr}.png`,
+            endIconUrl: 'icons/finish.png',
+            shadowUrl: null,
+        }                                        
+    }).addTo(overlays.tracks);      
 };
 
 const selectedTrack = 12;
