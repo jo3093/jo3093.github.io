@@ -85,6 +85,7 @@ const drawTrack = (nr) => {
 const selectedTrack = 12;
 drawTrack(selectedTrack);
 
+// Pulldown Menü
 let pulldown = document.querySelector("#pulldown");
 let selected = '';               // leere Variable                                                               
 for (let track of BIKETIROL) {
@@ -94,4 +95,9 @@ for (let track of BIKETIROL) {
         selected = '';                      // sonst leer
     }
     pulldown.innerHTML += `<option ${selected} value="${track.nr}">${track.nr}: ${track.etappe}</option>`;                       // value um draufzugreifen können (je Tracknummer)
+};
+
+// Wenn anders Elemt ausgewählt wird: event (Funktion)
+pulldown.onchange = () => {
+    drawTrack(pulldown.value);
 };
